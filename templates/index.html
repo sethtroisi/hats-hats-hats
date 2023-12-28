@@ -33,13 +33,12 @@
     border-radius: 15px;
   }
 
-  .card-title {
-    padding: 0 10px;
-    white-space: pre-wrap;
+  .card-body {
+    white-space: normal;
   }
 
   .card-text {
-    white-space: pre-wrap;
+    white-space: normal;
     text-overflow: ellipsis;
     overflow: hidden;
     padding: 10px 0;
@@ -53,7 +52,7 @@
     border-radius: 5px;
   }
 
-  .card-title, .hat-img {
+  .card-body, .hat-img {
     vertical-align:top;
   }
 
@@ -96,17 +95,19 @@
 {%- set name  = element["name"] -%}
 {%- set aspectratio = element["size"][0] / element["size"][1] -%}
 {%- set url = element["thumbnails"][0] if element["thumbnails"] else "generic_hat.jpg" -%}
-<div class="test-col-sm-4">
+<div>
   <div class="card">
   {% if aspectratio > 1.2 %}
     <div>
-      <img class="hat-img col-sm-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
-      <div class="card-title col-sm-4 d-inline-block">
+      <img class="hat-img col-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+      <div class="card-body col-4 d-inline-block">
         <h5>{{ name }}</h5>
+        <span>
         {%- for tag in element["tags"] -%}
           <span class="badge badge-primary">{{ tag }}</span>
-          {%- if not loop.last -%}&nbsp;{%- endif -%}
+          {%- if not loop.last -%}&ensp;{%- endif -%}
         {%- endfor -%}
+        </span>
       </div>
     </div>
     <div>
@@ -116,13 +117,15 @@
   {% else %}
     <div>
       <div>
-        <img class="hat-img col-sm-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
-        <div class="col-sm-6 d-inline-block">
-          <h5 class="card-title">{{ name }}</h5>
+        <img class="hat-img col-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+        <div class="card-body col-6 d-inline-block">
+          <h5>{{ name }}</h5>
+          <span>
           {%- for tag in element["tags"] -%}
             <span class="badge badge-primary">{{ tag }}</span>
-            {%- if not loop.last -%}&nbsp;{%- endif -%}
+            {%- if not loop.last -%}&ensp;{%- endif -%}
           {%- endfor -%}
+          </span>
           <p class="card-text">Vertical {{description}}</p>
         </div>
       </div>
@@ -134,7 +137,7 @@
 
 {%- macro card_row(element) -%}
 {%- set name  = element["name"] -%}
-    <tr class="col-sm-4">
+    <tr class="col-xl-4 col-lg-6">
       <td class="p-0">
         {{card(element)}}
       </td>
