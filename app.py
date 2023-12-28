@@ -34,26 +34,6 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 COLLECTION_FN = "HatsV1.json"
 
-# TODO add back later
-# def add_tags(element):
-#     """ Add list of [(tag1, style1), (tag2, style2)]"""
-#     tags = []
-#
-#     n = wu["n"]
-#     for under in [10, 100, 200]:
-#         if n <= under * 1000:
-#             tags.append((f"Under {under}k", "secondary"))
-#             break
-#
-#     if wu["num_factors"] == 0:
-#         tags.append((f"NF", "warning"))
-#
-#     if wu["num_factors"] > 5:
-#         tags.append(("MF", "info"))
-#
-#     wu["tags"] = tags
-
-
 # NOTE: status file is small (XXX kb) but avoid loading it on each request.
 @cache.cached(timeout=5 * 60)
 def get_collection():

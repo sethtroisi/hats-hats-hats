@@ -33,10 +33,15 @@ def ignore_tag(tag):
         return True
     return any(pattern.match(tag) for pattern in IGNORE_TAGS)
 
-def fn_to_tags(fn):
-    tags = os.path.splitext(fn)[0].split()
+def fn_to_tags(name):
+    tags = name.strip().split()
     tags = [tag for tag in tags if not ignore_tag(tag)]
     return tags
+
+def fixup_name(name):
+    if name.startswith(("Hat", "hat")):
+        name = name[3:]
+    return name.strip()
 
 def main():
     # Quick and Dirty v0
@@ -45,11 +50,14 @@ def main():
 
 
     for fn in os.listdir(HATS_DIR):
+        name = os.path.splitext(fn)[0]
+        name = fixup_name(name)
+
         path = os.path.join(HATS_DIR, fn)
         element = {
-            "name": fn,
+            "name": name,
             "thumbnails": [path],
-            "tags": fn_to_tags(fn),
+            "tags": fn_to_tags(name),
         }
         collection[fn] = element
 

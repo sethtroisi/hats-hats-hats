@@ -93,11 +93,12 @@
   <div class="card">
     <div>
       {% if element["thumbnails"] %}
-      <img class="card-img-top" src="{{ element["thumbnails"][0] }}" alt="Card image cap">
+      {%- set name  = element["name"] -%}
+      <img class="card-img-top" loading="lazy" src="{{ name }}" alt="{{">
       {% else %}
       <img class="card-img-top" src="generic_hat.jpg" alt="Card image cap">
       {% endif %}
-      <h5 class="card-title">{{ element["name"] }}</h5>
+      <h5 class="card-title">{{ name }}</h5>
     </div>
     <div class="card-body">
       <p class="card-text">This hat came from a small shop in England in 2022. I like the blah balh balh. It's fun because x y z. It joined the collection in.</p>
