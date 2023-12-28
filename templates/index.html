@@ -21,31 +21,20 @@
   }
 
   .card {
-    max-height: 350px;
+    max-height: 550px;
 
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 
-    padding: 15px;
+    padding: 20px;
     margin: 15px 0;
 
     border-radius: 15px;
   }
 
-  .card .card-img-top {
-    max-width: 50%;
-
-    border-radius: 5px;
-  }
-
   .card-title {
     padding: 0 10px;
-    max-width: 50%;
-
-    display: inline-block;
-
-    vertical-align:top;
     white-space: pre-wrap;
   }
 
@@ -53,10 +42,19 @@
     white-space: pre-wrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    padding: 10px 0;
   }
 
   .hats-page .card-body {
     padding-bottom: 0
+  }
+
+  .hat-img {
+    border-radius: 5px;
+  }
+
+  .card-title, .hat-img {
+    vertical-align:top;
   }
 
   @media (min-width: 1400px) {
@@ -92,25 +90,44 @@
 
   </head>
 
+{% set description = "This hat came from a small shop in England in 2022. I like the blah balh balh. It's fun because x y z. It joined the collection in." %}
+
 {%- macro card(element) -%}
 {%- set name  = element["name"] -%}
+{%- set aspectratio = element["size"][0] / element["size"][1] -%}
+{%- set url = element["thumbnails"][0] if element["thumbnails"] else "generic_hat.jpg" -%}
 <div class="test-col-sm-4">
   <div class="card">
+  {% if aspectratio > 1.2 %}
     <div>
-      {% if element["thumbnails"] %}
-      <img class="card-img-top" loading="lazy" src="{{ element["thumbnails"][0] }}" alt="{{ name }}">
-      {% else %}
-      <img class="card-img-top" src="generic_hat.jpg" alt="Card image cap">
-      {% endif %}
-      <h5 class="card-title">{{ name }}</h5>
+      <img class="hat-img col-sm-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+      <div class="card-title col-sm-4 d-inline-block">
+        <h5>{{ name }}</h5>
+        {%- for tag in element["tags"] -%}
+          <span class="badge badge-primary">{{ tag }}</span>
+          {%- if not loop.last -%}&nbsp;{%- endif -%}
+        {%- endfor -%}
+      </div>
     </div>
-    <div class="card-body">
-      <p class="card-text">This hat came from a small shop in England in 2022. I like the blah balh balh. It's fun because x y z. It joined the collection in.</p>
-      {% for tag in element["tags"] %}
-        <span class="badge badge-primary">{{ tag }}</span>
-      {% endfor %}
+    <div>
+      <p class="card-text">Horizontal {{description}}</p>
       {# <a href="#" class="btn btn-primary">Go somewhere</a> #}
     </div>
+  {% else %}
+    <div>
+      <div>
+        <img class="hat-img col-sm-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+        <div class="col-sm-6 d-inline-block">
+          <h5 class="card-title">{{ name }}</h5>
+          {%- for tag in element["tags"] -%}
+            <span class="badge badge-primary">{{ tag }}</span>
+            {%- if not loop.last -%}&nbsp;{%- endif -%}
+          {%- endfor -%}
+          <p class="card-text">Vertical {{description}}</p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
   </div>
 </div>
 {%- endmacro -%}
@@ -177,9 +194,6 @@
       lengthMenu: [24, 48, 96],
     });
     $('.dataTables_length').addClass('bs-select');
-
-
-
   });
 </script>
 </html>

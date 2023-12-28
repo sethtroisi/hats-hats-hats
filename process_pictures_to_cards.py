@@ -15,8 +15,10 @@ limitations under the License.
 '''
 
 import json
-import re
 import os
+import re
+
+import get_image_size
 
 JSON_OUTPUT = "HatsV1.json"
 HATS_DIR = "static/HatsV1"
@@ -54,17 +56,20 @@ def main():
 
     collection = {}
 
-
     for fn in os.listdir(HATS_DIR):
         name = os.path.splitext(fn)[0]
         name = fixup_name(name)
         tags = name_to_tags(name)
 
         path = os.path.join(HATS_DIR, fn)
+        img = get_image_size.get_image_metadata(path)
+        size = img.width, img.height
+
         element = {
             "name": name,
             "thumbnails": [path],
-            "tags": tags
+            "tags": tags,
+            "size": size,
         }
         collection[fn] = element
 
