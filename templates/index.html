@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8">
+  <head>
+  <style>
+
+  #main-col {
+    max-width: 90%;
+  }
+
+  #main-col .table {
+    width: auto;
+  }
+
+  @media (min-width: 1400px) {
+    #main-col {
+      max-width: 85%;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    #main-col {
+      max-width: 85%;
+    }
+  }
+
+  </style>
+
+
+{# JQuery #}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+{# Bootstrap 4 #}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+  {% set base="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0" %}
+  <link rel="stylesheet" href="{{base}}/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="{{base}}/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+
+{# Datatables for sorting rows; See https://datatables.net/download/ #}
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.css"/>
+
+  </head>
+
+{% macro number_comma_or_na(n) -%}
+{{ ("{:.1e}" if n > 1.1e11 else "{:,}").format(n) if n else "N/A" }}
+{%- endmacro %}
+
+{% macro mersenne_ca_link(n, text) -%}
+  <a href="//mersenne.ca/exponent/{{n}}">{{ text }}</a>
+{%- endmacro %}
+
+{%- macro status_row(name, data) -%}
+  {# copy so we can pop properties #}
+  {%- set d = dict(data) -%}
+  {%- set hash_ext = d.get("hash", "") -%} {# get not pop #}
+  {%- set raw = d.pop("raw") -%}
+  {%- set n = d.pop("n") -%}
+  {%- set n_str = d.pop("number_str") -%}
+  {%- set num_factors = d.pop("num_factors", 0) -%}
+  {%- set B1 = d.pop("B1_progress", 0) -%}
+  {%- set B2 = d.pop("B2_progress", 0) -%}
+  {%- set tags = d.pop("tags", []) -%}
+    <tr>
+      <th class="pr-4" data-order="{{n}}">
+        <a href="{{ url_for("download", filename=name) }}">{{ name.replace(hash_ext, "") }}</a>
+      </th>
+      <th class="pr-4" data-order="{{n}}">
+        {{ mersenne_ca_link(n, n_str) if raw['k'] == 1 and raw['c'] == -1 else n_str }}
+      </th>
+      <td>
+        {%- if num_factors -%}
+        <button type="button" class="btn"
+           data-container="body" data-toggle="popover" data-placement="right"
+           onclick="show_factors(this, {{n}})"
+        >{{ num_factors }}</button>
+        {%- else -%}
+        0
+        {%- endif -%}
+      </td>
+      <td data-order="{{B1}}">{{ number_comma_or_na(B1) }}</td>
+      <td data-order="{{B2}}">{{ number_comma_or_na(B2) }}</td>
+      <td class="px-5">TBD</td>
+      <td class="px-2">{{ d }}</td>
+      <td class="px-2">
+      {%- for name, badge_type in tags -%}
+        <span class="badge badge-{{badge_type}}" data-toggle="tooltip" title="{{name}}">{{name}}</span>
+        {%- if not loop.last -%}&nbsp;{%- endif -%}
+      {%- endfor -%}
+      </td>
+    </tr>
+{%- endmacro -%}
+
+{% macro status_table(label, rows) -%}
+<table id="status" class="table table-sm table-hover">
+  <thead class="thead-light">
+    <tr>
+      <th scope="col">Filename</th>
+      <th scope="col">Exponent</th>
+      <th scope="col">Factors&nbsp;</th>
+      <th scope="col">B1</th>
+      <th scope="col">B2</th>
+      <th scope="col">GHz&ndash;Day</th>
+      <th scope="col">Data</th>
+      <th scope="col">Tags</th>
+    </tr>
+  </thead>
+  <tbody>
+  {%- for name, data in rows.items() -%}
+    {{ status_row(name, data) }}
+  {%- endfor -%}
+  </tbody>
+</table>
+{%- endmacro %}
+
+<body>
+  <div id='main-col' class="container">
+    <h1 class="text-center">Mersenne P-1 Repository</h1>
+    <br>
+
+    <div>
+      <div class="d-flex justify-content-center">
+        <table id="head-stats" class="table table-sm table-hover">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Total Exponents</th>
+              <th scope="col">B1</th>
+              <th scope="col">B2</th>
+              <th scope="col">Updates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{total_exponents}}</td>
+              <td class="pr-4">{{ "{:.1e}".format(B1_range[0]).replace("+0", "") }} to {{ "{:.1e}".format(B1_range[1]).replace("e+", "e") }}
+              <td class="pr-4">{{ "{:.1e}".format(B2_range[0]).replace("+0", "") }} to {{ "{:.1e}".format(B2_range[1]).replace("e+", "e") }}
+              <td>TDB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        {{ status_table( "All", status ) }}
+      </div>
+    </div>
+  </div>
+</body>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    $('#status').DataTable({
+      "aoColumnDefs": [
+        { "bSortable": false, "aTargets": [0, 6, 7] },
+        { "select": true, "aTargets": [7] },
+      ],
+      searching: true,
+      ordering: true,
+      pageLength: 25,
+    });
+    $('.dataTables_length').addClass('bs-select');
+    // */
+
+  });
+
+  /** When you click on factors for a row */
+  function show_factors(elem, n) {
+    el = $(elem);
+    if (el.data("content")) {
+      // toggle seems to be broken for first 2 clicks, so track manually
+      el.data("toggled", !el.data("toggled"));
+
+      if (el.data("toggled"))
+        el.popover("show");
+      else
+        el.popover("dispose");
+
+      return;
+    }
+
+    test = $.get("/factors/" + n,
+    function(factors) {
+      el.data("content", factors);
+      el.data("toggled", true);
+      el.popover("show");
+    });
+  }
+</script>
+</html>
