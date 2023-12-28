@@ -21,21 +21,27 @@ import os
 JSON_OUTPUT = "HatsV1.json"
 HATS_DIR = "static/HatsV1"
 
+IGNORE_WORDS = [re.compile(word, re.I) for word in (
+    "hat", "front", "back", "and", "a", "an", "to"
+)]
 IGNORE_TAGS = [
     re.compile("^[\s&-]*$"),
-    re.compile("hat", re.I),
-    re.compile("front", re.I),
-    re.compile("back", re.I),
-]
+    re.compile("^[1-4]$"),
+] + IGNORE_WORDS
 
 def ignore_tag(tag):
     if not tag:
         return True
     return any(pattern.match(tag) for pattern in IGNORE_TAGS)
 
-def fn_to_tags(name):
+def name_to_tags(name):
+    name = name.strip()
+    if name.endswith((" a", " b", " 1", " 2")):
+        name = name[:-2]
+
     tags = name.strip().split()
     tags = [tag for tag in tags if not ignore_tag(tag)]
+    tags = [tag.strip("-&") for tag in tags]
     return tags
 
 def fixup_name(name):
@@ -52,12 +58,13 @@ def main():
     for fn in os.listdir(HATS_DIR):
         name = os.path.splitext(fn)[0]
         name = fixup_name(name)
+        tags = name_to_tags(name)
 
         path = os.path.join(HATS_DIR, fn)
         element = {
             "name": name,
             "thumbnails": [path],
-            "tags": fn_to_tags(name),
+            "tags": tags
         }
         collection[fn] = element
 

@@ -12,7 +12,7 @@
     max-width: 90%;
   }
 
-  #main-col .collection {
+  #main-col #collection {
     width: auto;
   }
 
@@ -89,12 +89,12 @@
   </head>
 
 {%- macro card(element) -%}
+{%- set name  = element["name"] -%}
 <div class="col-sm-4">
   <div class="card">
     <div>
       {% if element["thumbnails"] %}
-      {%- set name  = element["name"] -%}
-      <img class="card-img-top" loading="lazy" src="{{ name }}" alt="{{">
+      <img class="card-img-top" loading="lazy" src="{{ element["thumbnails"][0] }}" alt="{{ name }}">
       {% else %}
       <img class="card-img-top" src="generic_hat.jpg" alt="Card image cap">
       {% endif %}
@@ -112,11 +112,11 @@
 {%- endmacro -%}
 
 {% macro card_section(data) -%}
-<div class="row collection">
-  {% for name, card_data in data.items() %}
-    {{ card(card_data) }}
-  {% endfor %}
-</div>
+  <div id="collection" class="row">
+    {% for name, card_data in data.items() %}
+      {{ card(card_data) }}
+    {% endfor %}
+  </div>
 {%- endmacro %}
 
 <body class="hats-page">
@@ -126,19 +126,20 @@
 
     <div>
       <div class="d-flex justify-content-center">
-        Some words about size of collection, last update date, latest hat
+        This collection contains {{ collection | length }} hats.
       </div>
 
       <div class="d-flex justify-content-center">
         {{ card_section( collection ) }}
       </div>
+
     </div>
   </div>
 </body>
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('#status').DataTable({
+    $('#collection').DataTable({
       "aoColumnDefs": [
         { "bSortable": false, "aTargets": [0, 6, 7] },
         { "select": true, "aTargets": [7] },
