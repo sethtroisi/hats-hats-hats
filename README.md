@@ -19,3 +19,4 @@ A local server should now be running at http://localhost:5090
 * [ ] Cards
 * [ ] Better filtering
 * [ ] CSS
+* [ ] Generic hat

@@ -32,82 +32,55 @@ app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 
-STATUS_FN = "status.json"
+COLLECTION_FN = "HatsV1.json"
 
-# TODO TF, P-1 data from mersenne.ca/export
-MAX_COLLECT_N = 10 ** 7
-
-def add_tags(wu):
-    """ Add list of [(tag1, style1), (tag2, style2)]"""
-    tags = []
-
-    n = wu["n"]
-    for under in [10, 100, 200]:
-        if n <= under * 1000:
-            tags.append((f"Under {under}k", "secondary"))
-            break
-
-    if wu["num_factors"] == 0:
-        tags.append((f"NF", "warning"))
-
-    if wu["num_factors"] > 5:
-        tags.append(("MF", "info"))
-
-    wu["tags"] = tags
+# TODO add back later
+# def add_tags(element):
+#     """ Add list of [(tag1, style1), (tag2, style2)]"""
+#     tags = []
+#
+#     n = wu["n"]
+#     for under in [10, 100, 200]:
+#         if n <= under * 1000:
+#             tags.append((f"Under {under}k", "secondary"))
+#             break
+#
+#     if wu["num_factors"] == 0:
+#         tags.append((f"NF", "warning"))
+#
+#     if wu["num_factors"] > 5:
+#         tags.append(("MF", "info"))
+#
+#     wu["tags"] = tags
 
 
 # NOTE: status file is small (XXX kb) but avoid loading it on each request.
 @cache.cached(timeout=5 * 60)
-def get_status():
-    status_path = os.path.join(app.root_path, STATUS_FN)
-    if not os.path.exists(status_path):
+def get_collection():
+    collection_path = os.path.join(app.root_path, COLLECTION_FN)
+    if not os.path.exists(collection_path):
         return None
 
-    with open(status_path) as status_file:
-        return json.load(status_file)
+    with open(collection_path) as collection_file:
+        return json.load(collection_file)
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route("/")
 def main_page():
-    status = get_status()
+    collection = get_collection()
 
-    for name in list(status):
-        wu = status[name]
-        work = wu.pop('work_type')
-        if work != 'PM1':
-            status.pop(name)
-            continue
+    collection = {k: v for k, v in list(collection.items())[:30]}
 
-        wu["number_str"] = number_str(wu)
-
-        # These just busy up data
-        wu.pop("B1_bound", None)
-        wu.pop("B2_bound", None)
-        wu.pop("path")
-
-
-    exponents = set()
-    B1 = []
-    B2 = []
-    for wu in status.values():
-        add_factor_count(wu)
-        add_tags(wu)
-
-        exponents.add(wu["number_str"])
-        b1 = wu.get("B1_progress", None)
-        if b1:
-            B1.append(b1)
-            b2 = wu.get("B2_progress", None)
-            if b2:
-                B2.append(b2)
-
+    # TODO ensure thumbnails start with static
 
     return render_template(
         "index.html",
-        status=status,
-        total_exponents=len(exponents),
-        B1_range = (min(B1), max(B1)),
-        B2_range = (min(B2, default=None), max(B2, default=None)),
+        collection=collection,
     )
 
 

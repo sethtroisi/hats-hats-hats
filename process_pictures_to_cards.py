@@ -19,13 +19,13 @@ import re
 import os
 
 JSON_OUTPUT = "HatsV1.json"
-HATS_DIR = "HatsV1"
+HATS_DIR = "static/HatsV1"
 
 IGNORE_TAGS = [
     re.compile("^[\s&-]*$"),
-    re.compile("hat"),
-    re.compile("front"),
-    re.compile("back"),
+    re.compile("hat", re.I),
+    re.compile("front", re.I),
+    re.compile("back", re.I),
 ]
 
 def ignore_tag(tag):
@@ -34,7 +34,7 @@ def ignore_tag(tag):
     return any(pattern.match(tag) for pattern in IGNORE_TAGS)
 
 def fn_to_tags(fn):
-    tags = fn.split()
+    tags = os.path.splitext(fn)[0].split()
     tags = [tag for tag in tags if not ignore_tag(tag)]
     return tags
 

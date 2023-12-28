@@ -4,12 +4,55 @@
   <head>
   <style>
 
+  .hats-page {
+    background: #eee;
+  }
+
   #main-col {
     max-width: 90%;
   }
 
-  #main-col .table {
+  #main-col .collection {
     width: auto;
+  }
+
+  .card {
+    max-height: 350px;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+
+    padding: 15px;
+    margin: 15px 0;
+
+    border-radius: 15px;
+  }
+
+  .card .card-img-top {
+    max-width: 50%;
+
+    border-radius: 5px;
+  }
+
+  .card-title {
+    padding: 0 10px;
+    max-width: 50%;
+
+    display: inline-block;
+
+    vertical-align:top;
+    white-space: pre-wrap;
+  }
+
+  .card-text {
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .hats-page .card-body {
+    padding-bottom: 0
   }
 
   @media (min-width: 1400px) {
@@ -26,6 +69,7 @@
 
   </style>
 
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
 {# JQuery #}
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -44,106 +88,48 @@
 
   </head>
 
-{% macro number_comma_or_na(n) -%}
-{{ ("{:.1e}" if n > 1.1e11 else "{:,}").format(n) if n else "N/A" }}
-{%- endmacro %}
-
-{% macro mersenne_ca_link(n, text) -%}
-  <a href="//mersenne.ca/exponent/{{n}}">{{ text }}</a>
-{%- endmacro %}
-
-{%- macro status_row(name, data) -%}
-  {# copy so we can pop properties #}
-  {%- set d = dict(data) -%}
-  {%- set hash_ext = d.get("hash", "") -%} {# get not pop #}
-  {%- set raw = d.pop("raw") -%}
-  {%- set n = d.pop("n") -%}
-  {%- set n_str = d.pop("number_str") -%}
-  {%- set num_factors = d.pop("num_factors", 0) -%}
-  {%- set B1 = d.pop("B1_progress", 0) -%}
-  {%- set B2 = d.pop("B2_progress", 0) -%}
-  {%- set tags = d.pop("tags", []) -%}
-    <tr>
-      <th class="pr-4" data-order="{{n}}">
-        <a href="{{ url_for("download", filename=name) }}">{{ name.replace(hash_ext, "") }}</a>
-      </th>
-      <th class="pr-4" data-order="{{n}}">
-        {{ mersenne_ca_link(n, n_str) if raw['k'] == 1 and raw['c'] == -1 else n_str }}
-      </th>
-      <td>
-        {%- if num_factors -%}
-        <button type="button" class="btn"
-           data-container="body" data-toggle="popover" data-placement="right"
-           onclick="show_factors(this, {{n}})"
-        >{{ num_factors }}</button>
-        {%- else -%}
-        0
-        {%- endif -%}
-      </td>
-      <td data-order="{{B1}}">{{ number_comma_or_na(B1) }}</td>
-      <td data-order="{{B2}}">{{ number_comma_or_na(B2) }}</td>
-      <td class="px-5">TBD</td>
-      <td class="px-2">{{ d }}</td>
-      <td class="px-2">
-      {%- for name, badge_type in tags -%}
-        <span class="badge badge-{{badge_type}}" data-toggle="tooltip" title="{{name}}">{{name}}</span>
-        {%- if not loop.last -%}&nbsp;{%- endif -%}
-      {%- endfor -%}
-      </td>
-    </tr>
+{%- macro card(element) -%}
+<div class="col-sm-4">
+  <div class="card">
+    <div>
+      {% if element["thumbnails"] %}
+      <img class="card-img-top" src="{{ element["thumbnails"][0] }}" alt="Card image cap">
+      {% else %}
+      <img class="card-img-top" src="generic_hat.jpg" alt="Card image cap">
+      {% endif %}
+      <h5 class="card-title">{{ element["name"] }}</h5>
+    </div>
+    <div class="card-body">
+      <p class="card-text">This hat came from a small shop in England in 2022. I like the blah balh balh. It's fun because x y z. It joined the collection in.</p>
+      {% for tag in element["tags"] %}
+        <span class="badge badge-primary">{{ tag }}</span>
+      {% endfor %}
+      {# <a href="#" class="btn btn-primary">Go somewhere</a> #}
+    </div>
+  </div>
+</div>
 {%- endmacro -%}
 
-{% macro status_table(label, rows) -%}
-<table id="status" class="table table-sm table-hover">
-  <thead class="thead-light">
-    <tr>
-      <th scope="col">Filename</th>
-      <th scope="col">Exponent</th>
-      <th scope="col">Factors&nbsp;</th>
-      <th scope="col">B1</th>
-      <th scope="col">B2</th>
-      <th scope="col">GHz&ndash;Day</th>
-      <th scope="col">Data</th>
-      <th scope="col">Tags</th>
-    </tr>
-  </thead>
-  <tbody>
-  {%- for name, data in rows.items() -%}
-    {{ status_row(name, data) }}
-  {%- endfor -%}
-  </tbody>
-</table>
+{% macro card_section(data) -%}
+<div class="row collection">
+  {% for name, card_data in data.items() %}
+    {{ card(card_data) }}
+  {% endfor %}
+</div>
 {%- endmacro %}
 
-<body>
+<body class="hats-page">
   <div id='main-col' class="container">
-    <h1 class="text-center">Mersenne P-1 Repository</h1>
+    <h1 class="text-center">Hat Collection</h1>
     <br>
 
     <div>
       <div class="d-flex justify-content-center">
-        <table id="head-stats" class="table table-sm table-hover">
-          <thead class="thead-light">
-            <tr>
-              <th scope="col">Total Exponents</th>
-              <th scope="col">B1</th>
-              <th scope="col">B2</th>
-              <th scope="col">Updates</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{{total_exponents}}</td>
-              <td class="pr-4">{{ "{:.1e}".format(B1_range[0]).replace("+0", "") }} to {{ "{:.1e}".format(B1_range[1]).replace("e+", "e") }}
-              <td class="pr-4">{{ "{:.1e}".format(B2_range[0]).replace("+0", "") }} to {{ "{:.1e}".format(B2_range[1]).replace("e+", "e") }}
-              <td>TDB</td>
-            </tr>
-          </tbody>
-        </table>
+        Some words about size of collection, last update date, latest hat
       </div>
 
       <div class="d-flex justify-content-center">
-        {{ status_table( "All", status ) }}
+        {{ card_section( collection ) }}
       </div>
     </div>
   </div>
@@ -164,28 +150,5 @@
     // */
 
   });
-
-  /** When you click on factors for a row */
-  function show_factors(elem, n) {
-    el = $(elem);
-    if (el.data("content")) {
-      // toggle seems to be broken for first 2 clicks, so track manually
-      el.data("toggled", !el.data("toggled"));
-
-      if (el.data("toggled"))
-        el.popover("show");
-      else
-        el.popover("dispose");
-
-      return;
-    }
-
-    test = $.get("/factors/" + n,
-    function(factors) {
-      el.data("content", factors);
-      el.data("toggled", true);
-      el.popover("show");
-    });
-  }
 </script>
 </html>
