@@ -54,7 +54,7 @@ def favicon():
 def main_page():
     collection = get_collection()
 
-    collection = {k: v for k, v in list(collection.items())[:30]}
+    #collection = {k: v for k, v in list(collection.items())[:30]}
 
     # TODO ensure thumbnails start with static
 

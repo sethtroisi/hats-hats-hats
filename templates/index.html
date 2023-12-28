@@ -16,6 +16,10 @@
     width: auto;
   }
 
+  #collection td {
+    border-top: none
+  }
+
   .card {
     max-height: 350px;
 
@@ -90,7 +94,7 @@
 
 {%- macro card(element) -%}
 {%- set name  = element["name"] -%}
-<div class="col-sm-4">
+<div class="test-col-sm-4">
   <div class="card">
     <div>
       {% if element["thumbnails"] %}
@@ -111,12 +115,37 @@
 </div>
 {%- endmacro -%}
 
+{%- macro card_row(element) -%}
+{%- set name  = element["name"] -%}
+    <tr class="col-sm-4">
+      <td class="p-0">
+        {{card(element)}}
+      </td>
+    </tr>
+
+{%- endmacro -%}
+
 {% macro card_section(data) -%}
+<table id="collection" class="table">
+  <thead class="thead-light d-none">
+    <tr>
+      <th scope="col">Card</th>
+    </tr>
+  </thead>
+  <tbody class="d-flex row">
+    {% for name, card_data in data.items() %}
+      {{ card_row(card_data) }}
+    {% endfor %}
+  </tbody>
+</table>
+
+{#
   <div id="collection" class="row">
     {% for name, card_data in data.items() %}
       {{ card(card_data) }}
     {% endfor %}
   </div>
+#}
 {%- endmacro %}
 
 <body class="hats-page">
@@ -141,15 +170,15 @@
   $(document).ready(function () {
     $('#collection').DataTable({
       "aoColumnDefs": [
-        { "bSortable": false, "aTargets": [0, 6, 7] },
-        { "select": true, "aTargets": [7] },
       ],
       searching: true,
-      ordering: true,
-      pageLength: 25,
+      ordering: false,
+      pageLength: 24,
+      lengthMenu: [24, 48, 96],
     });
     $('.dataTables_length').addClass('bs-select');
-    // */
+
+
 
   });
 </script>
