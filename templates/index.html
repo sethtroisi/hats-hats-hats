@@ -2,10 +2,14 @@
 <html>
   <meta charset="utf-8">
   <head>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <title>Greater Portland Hat Collection</title>
+
   <style>
 
   .hats-page {
     background: #eee;
+    margin: 15px 0;
   }
 
   #main-col {
@@ -35,6 +39,10 @@
 
   .card-body {
     white-space: normal;
+  }
+
+  .card .badge {
+    cursor: pointer;
   }
 
   .card-text {
@@ -70,8 +78,6 @@
 
   </style>
 
-  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
 {# JQuery #}
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
@@ -89,7 +95,7 @@
 
   </head>
 
-{% set description = "This hat came from a small shop in England in 2022. I like the blah balh balh. It's fun because x y z. It joined the collection in." %}
+{% set description = "This hat came from a small shop in England in 2022. Notice the attention to ... And the texture. Both are signs of good construction." %}
 
 {%- macro card(element) -%}
 {%- set name  = element["name"] -%}
@@ -170,25 +176,31 @@
 
 <body class="hats-page">
   <div id='main-col' class="container">
-    <h1 class="text-center">Hat Collection</h1>
+    <h1 class="text-center">Photos of the Greater Portland Hat Collection</h1>
     <br>
 
     <div>
       <div class="d-flex justify-content-center">
-        This collection contains {{ collection | length }} hats.
+        The online portal for the Greater Portland Hat collection
+        currently contains {{ collection | length }} hats and {{ count_tags }} tags.
+        <br>
+        Metadata last updated {{ last_update.strftime("%Y-%m-%d") }}
       </div>
 
       <div class="d-flex justify-content-center">
         {{ card_section( collection ) }}
       </div>
-
     </div>
   </div>
 </body>
 
 <script type="text/javascript">
   $(document).ready(function () {
-    $('#collection').DataTable({
+    // Get badges before some rows are hidden
+    var badges = $('.badge');
+    console.log("|badges| =", badges.length);
+
+    var table = $('#collection').DataTable({
       "aoColumnDefs": [
       ],
       searching: true,
@@ -197,6 +209,12 @@
       lengthMenu: [24, 48, 96],
     });
     $('.dataTables_length').addClass('bs-select');
+
+    badges.on("click", function (event) {
+      var text = event.currentTarget.innerText;
+      console.log("Searching for ", text)
+      table.search(text).draw();
+    });
   });
 </script>
 </html>

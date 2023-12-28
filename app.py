@@ -18,6 +18,7 @@ limitations under the License.
 import json
 import re
 import os
+import datetime
 
 from collections import defaultdict
 
@@ -58,9 +59,14 @@ def main_page():
 
     # TODO ensure thumbnails start with static
 
+    last_update = datetime.datetime.fromtimestamp(
+            os.path.getmtime(os.path.join(app.root_path, COLLECTION_FN)))
+
     return render_template(
         "index.html",
         collection=collection,
+        count_tags=sum(len(v["tags"]) for v in collection.values()),
+        last_update=last_update,
     )
 
 
