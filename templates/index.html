@@ -65,7 +65,7 @@
   .hat-img {
   }
 
-  .card-body, .hat-img {
+  .card-body, .img-wrapper {
     vertical-align:top;
   }
 
@@ -78,6 +78,12 @@
   @media (min-width: 1400px) {
     #main-col {
       max-width: 85%;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    #hat-modal .modal-dialog {
+      max-width: 800px;
     }
   }
 
@@ -110,7 +116,9 @@
   <div class="card-inner">
   {% if aspectratio > 1.2 %}
     <div>
-      <img class="hat-img rounded col-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+      <div class="col-8 p-0 img-wrapper d-inline-block">
+        <img class="hat-img rounded mw-100 mh-100" loading="lazy" src="{{ url }}" alt="{{ name }}">
+      </div>
       <div class="card-body col-4 d-inline-block">
         <h5 class="hat-name">{{ name }}</h5>
         <span>
@@ -127,7 +135,9 @@
   {% else %}
     <div>
       <div>
-        <img class="hat-img rounded col-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+        <div class="col-6 p-0 img-wrapper d-inline-block">
+          <img class="hat-img rounded mw-100 mh-100" loading="lazy" src="{{ url }}" alt="{{ name }}">
+        </div>
         <div class="card-body col-6 d-inline-block">
           <h5 class="hat-name">{{ name }}</h5>
           <span>
@@ -201,13 +211,13 @@
   <div class="modal fade" id="hat-modal" tabindex="-1" role="dialog" aria-labelledby="hatLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header p-4">
           <h5 class="modal-title" id="hatLabel">Hat Name</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body d-flex">
+        <div class="modal-body p-4 d-flex">
           <div>
             <div class="card-inner text-center">
               <img class="hat-img rounded p-0" loading="lazy" src="..." alt="...">
