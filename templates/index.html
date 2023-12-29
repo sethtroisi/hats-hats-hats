@@ -2,7 +2,11 @@
 <html>
   <meta charset="utf-8">
   <head>
+
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="apple-touch-icon-precomposed" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+  <link rel="icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+
   <title>Greater Portland Hat Collection</title>
 
   <style>
@@ -27,14 +31,16 @@
   .card {
     max-height: 550px;
 
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-
     padding: 20px;
     margin: 15px 0;
 
     border-radius: 15px;
+  }
+
+  .card-inner {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .card-body {
@@ -57,7 +63,6 @@
   }
 
   .hat-img {
-    border-radius: 5px;
   }
 
   .card-body, .hat-img {
@@ -101,13 +106,13 @@
 {%- set name  = element["name"] -%}
 {%- set aspectratio = element["size"][0] / element["size"][1] -%}
 {%- set url = element["thumbnails"][0] if element["thumbnails"] else "generic_hat.jpg" -%}
-<div>
-  <div class="card">
+<div class="card">
+  <div class="card-inner">
   {% if aspectratio > 1.2 %}
     <div>
-      <img class="hat-img col-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+      <img class="hat-img rounded col-8 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
       <div class="card-body col-4 d-inline-block">
-        <h5>{{ name }}</h5>
+        <h5 class="hat-name">{{ name }}</h5>
         <span>
         {%- for tag in element["tags"] -%}
           <span class="badge badge-primary">{{ tag }}</span>
@@ -118,14 +123,13 @@
     </div>
     <div>
       <p class="card-text">Horizontal {{description}}</p>
-      {# <a href="#" class="btn btn-primary">Go somewhere</a> #}
     </div>
   {% else %}
     <div>
       <div>
-        <img class="hat-img col-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
+        <img class="hat-img rounded col-6 p-0" loading="lazy" src="{{ url }}" alt="{{ name }}">
         <div class="card-body col-6 d-inline-block">
-          <h5>{{ name }}</h5>
+          <h5 class="hat-name">{{ name }}</h5>
           <span>
           {%- for tag in element["tags"] -%}
             <span class="badge badge-primary">{{ tag }}</span>
@@ -192,12 +196,43 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="hat-modal" tabindex="-1" role="dialog" aria-labelledby="hatLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="hatLabel">Hat Name</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body d-flex">
+          <div>
+            <div class="card-inner text-center">
+              <img class="hat-img rounded p-0" loading="lazy" src="..." alt="...">
+            </div>
+            <div>
+              <p class="card-text">{{ description }} </p>
+              <p class="card-text">{{ description }} </p>
+              <p class="card-text">{{ description }} </p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 <script type="text/javascript">
   $(document).ready(function () {
     // Get badges before some rows are hidden
+    var cards = $('.card');
     var badges = $('.badge');
+    console.log("|cards| =", cards.length);
     console.log("|badges| =", badges.length);
 
     var table = $('#collection').DataTable({
@@ -214,6 +249,18 @@
       var text = event.currentTarget.innerText;
       console.log("Searching for ", text)
       table.search(text).draw();
+      event.stopPropagation();
+    });
+
+    var modal = $('#hat-modal');
+    cards.on("click", function (event) {
+      var card = event.currentTarget;
+      console.log(card);
+      card = $(card)
+      var name = card.find(".hat-name").text();
+      modal.find("#hatLabel").text(name);
+      modal.find(".hat-img").replaceWith(card.find(".hat-img").clone());
+      modal.modal('show');
     });
   });
 </script>
