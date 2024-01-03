@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon-precomposed" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
   <link rel="icon" href="{{ url_for('static', filename='favicon-32x32.png') }}">
 
-  <title>Greater Portland Hat Collection</title>
+  <title>{{name}}</title>
 
   <style>
 
@@ -208,10 +208,10 @@
 
 <body class="hats-page">
   <div id='main-col' class="container">
-    <h1 class="text-center">Photos of the Greater Portland Hat Collection</h1>
+    <h1 class="text-center">{{name}}</h1>
     <div>
       <div class="d-flex justify-content-center my-3">
-        The online portal for the Greater Portland Hat collection
+        The online portal for {{name}}
         currently contains {{ collection | length }} hats and {{ count_tags }} tags.
         <br>
         Metadata last updated {{ last_update.strftime("%Y-%m-%d") }}

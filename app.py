@@ -65,6 +65,7 @@ def main_page():
     return render_template(
         "index.html",
         collection=collection,
+        name="Brenda's Bonnets",
         count_tags=sum(len(v["tags"]) for v in collection.values()),
         last_update=last_update,
     )
