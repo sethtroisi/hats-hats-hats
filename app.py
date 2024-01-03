@@ -38,8 +38,9 @@ COLLECTION_FN = "HatsV1.json"
 
 def hat_name_key(name):
     name = name.strip().lower()
-    name = name.replace('accessory', 'zaccessory')
-    name = name.replace('costume',   'ycostume')
+    name = name.replace('hat', '').strip()
+    name = name.replace('accessory', 'zzzz_accessory')
+    name = name.replace('costume',   'zzzz_costume')
     return name
 
 # NOTE: status file is small (XXX kb) but avoid loading it on each request.
@@ -64,6 +65,9 @@ def main_page():
 
     # Ugly sort
     collection = {k: collection[k] for k in sorted(collection, key=hat_name_key)}
+
+    for fn in collection:
+        print(fn, "\t", hat_name_key(fn))
 
     # TODO ensure thumbnails start with static
 
