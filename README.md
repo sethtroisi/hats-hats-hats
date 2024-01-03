@@ -16,7 +16,21 @@ A local server should now be running at http://localhost:5090
 
 ### TODO
 
-* [ ] Cards
-* [ ] Better filtering
-* [ ] CSS
-* [ ] Generic hat
+* [x] Cards
+* [x] Better filtering
+* [x] CSS
+* [x] Generic hat
+
+##
+
+Filter hats to directories
+
+```
+python tools/group_hats.py
+```
+
+Regenerate metadata
+
+```
+python tools/process_pictures_to_cards.py
+```
