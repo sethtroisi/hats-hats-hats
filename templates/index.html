@@ -261,8 +261,8 @@
     // Get badges before some rows are hidden
     var cards = $('.card');
     var badges = $('.badge');
-    console.log("|cards| =", cards.length);
-    console.log("|badges| =", badges.length);
+    console.log("|cards| = ", cards.length);
+    console.log("|badges| = ", badges.length);
 
     var table = $('#collection').DataTable({
       aoColumnDefs: [ ],
@@ -282,13 +282,19 @@
       ],
     });
 
+    table.on('page.dt', function() {
+      $('html, body').animate({
+        scrollTop: $(".dataTables_wrapper").offset().top
+      }, 'slow');
+    });
+
     //$('#collection_filter input').on("input", function (event) {
     //  table.column(1).search("");
     //});
 
     // Move around custom button and filter filter dom
-    right_div = $("<div class='float-right'></div>");
     wrapper = $('#collection_wrapper')
+    right_div = $("<div class='float-right'></div>");
     right_div.insertBefore(wrapper.find('#collection'))
     right_div.append(wrapper.find('#collection_filter'))
     right_div.append(wrapper.find('div.dt-buttons').addClass('d-inline-block'))
