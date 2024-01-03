@@ -47,33 +47,49 @@ def name_to_tags(name):
     return tags
 
 def fixup_name(name):
-    if name.startswith(("Hat", "hat")):
-        name = name[3:]
+    prefixes = ("zz", "Hat", "hat")
+    for prefix in prefixes:
+        if name.startswith(prefix):
+            name = name[len(prefix):].lstrip()
     return name.strip()
+
+def get_data(paths):
+    lead = paths[0]
+    name = os.path.basename(lead)
+    name = os.path.splitext(name)[0]
+    name = fixup_name(name)
+    tags = name_to_tags(name)
+
+    img = get_image_size.get_image_metadata(lead)
+    size = img.width, img.height
+
+    print(name)
+
+    return {
+        "name": name,
+        "thumbnails": paths,
+        "tags": tags,
+        "size": size,
+    }
 
 def main():
     # Quick and Dirty v0
 
     collection = {}
 
-    for fn in os.listdir(HATS_DIR):
-        name = os.path.splitext(fn)[0]
-        name = fixup_name(name)
-        tags = name_to_tags(name)
-
+    for fn in sorted(os.listdir(HATS_DIR)):
         path = os.path.join(HATS_DIR, fn)
-        img = get_image_size.get_image_metadata(path)
-        size = img.width, img.height
+        if os.path.isfile(path):
+            element = get_data([path])
+        elif os.path.isdir(path):
+            element = get_data([os.path.join(path, p) for p in os.listdir(path)])
+        else:
+            assert False, fn
 
-        element = {
-            "name": name,
-            "thumbnails": [path],
-            "tags": tags,
-            "size": size,
-        }
         collection[fn] = element
 
-    print("Saving data on", len(collection), "hats")
+    pictures = sum(len(e['thumbnails']) for e in collection.values())
+    print(f"Saving metadata for {len(collection)} hats with {pictures} pictures")
 
     with open(JSON_OUTPUT, "w") as f:
         json.dump(collection, f)
