@@ -36,11 +36,13 @@ def ignore_tag(tag):
         return True
     return any(pattern.match(tag) for pattern in IGNORE_TAGS)
 
-def name_to_tags(name):
+def strip_suffix(name):
     name = name.strip()
     if name.endswith((" a", " b", " 1", " 2")):
         name = name[:-2]
+    return name
 
+def name_to_tags(name):
     tags = name.strip().split()
     tags = [tag for tag in tags if not ignore_tag(tag)]
     tags = [tag.strip("-&") for tag in tags]
@@ -54,16 +56,17 @@ def fixup_name(name):
     return name.strip()
 
 def get_data(paths):
+    if len(paths) > 1:
+        print(paths)
     lead = paths[0]
     name = os.path.basename(lead)
     name = os.path.splitext(name)[0]
     name = fixup_name(name)
+    name = strip_suffix(name)
     tags = name_to_tags(name)
 
     img = get_image_size.get_image_metadata(lead)
     size = img.width, img.height
-
-    print(name)
 
     return {
         "name": name,
@@ -82,7 +85,7 @@ def main():
         if os.path.isfile(path):
             element = get_data([path])
         elif os.path.isdir(path):
-            element = get_data([os.path.join(path, p) for p in os.listdir(path)])
+            element = get_data([os.path.join(path, p) for p in sorted(os.listdir(path), key=lambda p: (len(p), p))])
         else:
             assert False, fn
 

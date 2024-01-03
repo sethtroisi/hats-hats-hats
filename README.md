@@ -16,9 +16,10 @@ A local server should now be running at http://localhost:5090
 
 ### TODO
 
-* [ ] Clear button
 * [ ] Show multiple images
 * [ ] image size doesn't always work with rotation
+* [x] Sort costume and accessory to end
+* [x] Clear button
 * [x] Cards
 * [x] Better filtering
 * [x] CSS

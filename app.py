@@ -35,6 +35,13 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 COLLECTION_FN = "HatsV1.json"
 
+
+def hat_name_key(name):
+    name = name.strip().lower()
+    name = name.replace('accessory', 'zaccessory')
+    name = name.replace('costume',   'ycostume')
+    return name
+
 # NOTE: status file is small (XXX kb) but avoid loading it on each request.
 @cache.cached(timeout=5 * 60)
 def get_collection():
@@ -55,7 +62,8 @@ def favicon():
 def main_page():
     collection = get_collection()
 
-    #collection = {k: v for k, v in list(collection.items())[:30]}
+    # Ugly sort
+    collection = {k: collection[k] for k in sorted(collection, key=hat_name_key)}
 
     # TODO ensure thumbnails start with static
 
