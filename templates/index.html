@@ -270,30 +270,33 @@
       ordering: false,
       pageLength: 12,
       lengthMenu: [12, 24, 48, 96],
-      dom: 'liprftip',
+      dom: 'liprfBtip',
       buttons: [
         {
             text: 'Clear',
             action: function ( e, dt, node, config ) {
               table.search("");
-              table.column(1).search("");
               table.draw();
             }
         }
       ],
     });
 
-    $('#collection_filter input').on("input", function (event) {
-      table.column(1).search("");
-    });
-    //$('#collection_paginate').addClass("text-center");
-    $('#collection_filter').addClass("float-right")
+    //$('#collection_filter input').on("input", function (event) {
+    //  table.column(1).search("");
+    //});
+
+    // Move around custom button and filter filter dom
+    right_div = $("<div class='float-right'></div>");
+    wrapper = $('#collection_wrapper')
+    right_div.insertBefore(wrapper.find('#collection'))
+    right_div.append(wrapper.find('#collection_filter'))
+    right_div.append(wrapper.find('div.dt-buttons').addClass('d-inline-block'))
 
     badges.on("click", function (event) {
       var text = event.currentTarget.innerText;
       console.log("Searching for ", text)
-      table.search("");
-      table.column(1).search(" " + text + " ");
+      table.search(text);
       table.draw();
       event.stopPropagation();
     });
