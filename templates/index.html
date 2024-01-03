@@ -69,6 +69,15 @@
     vertical-align:top;
   }
 
+  #collection_length,
+  #collection_info,
+  #collection_paginate,
+  #collection_filter
+  {
+    display: inline-block;
+    margin-right: 1em;
+  }
+
   @media (min-width: 1400px) {
     #main-col {
       max-width: 85%;
@@ -101,8 +110,11 @@
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 
 {# Datatables for sorting rows; See https://datatables.net/download/ #}
-  <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.css"/>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.13.8/datatables.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.13.8/datatables.min.css"/>
 
   </head>
 
@@ -161,6 +173,11 @@
       <td class="p-0">
         {{card(element)}}
       </td>
+      <td class="p-0 d-none">
+        {%- for tag in element["tags"] -%}
+          {{ tag }}{%- if not loop.last -%}&ensp;{%- endif -%}
+        {%- endfor -%}
+      </td>
     </tr>
 
 {%- endmacro -%}
@@ -170,6 +187,7 @@
   <thead class="thead-light d-none">
     <tr>
       <th scope="col">Card</th>
+      <th scope="col">Tags</th>
     </tr>
   </thead>
   <tbody class="d-flex row">
@@ -191,15 +209,16 @@
 <body class="hats-page">
   <div id='main-col' class="container">
     <h1 class="text-center">Photos of the Greater Portland Hat Collection</h1>
-    <br>
-
     <div>
-      <div class="d-flex justify-content-center">
+      <div class="d-flex justify-content-center my-3">
         The online portal for the Greater Portland Hat collection
         currently contains {{ collection | length }} hats and {{ count_tags }} tags.
         <br>
         Metadata last updated {{ last_update.strftime("%Y-%m-%d") }}
+        <br>
       </div>
+
+      <div id="boo"></div>
 
       <div class="d-flex justify-content-center">
         {{ card_section( collection ) }}
@@ -246,19 +265,36 @@
     console.log("|badges| =", badges.length);
 
     var table = $('#collection').DataTable({
-      "aoColumnDefs": [
-      ],
+      aoColumnDefs: [ ],
       searching: true,
       ordering: false,
-      pageLength: 24,
-      lengthMenu: [24, 48, 96],
+      pageLength: 12,
+      lengthMenu: [12, 24, 48, 96],
+      dom: 'liprftip',
+      buttons: [
+        {
+            text: 'Clear',
+            action: function ( e, dt, node, config ) {
+              table.search("");
+              table.column(1).search("");
+              table.draw();
+            }
+        }
+      ],
     });
-    $('.dataTables_length').addClass('bs-select');
+
+    $('#collection_filter input').on("input", function (event) {
+      table.column(1).search("");
+    });
+    //$('#collection_paginate').addClass("text-center");
+    $('#collection_filter').addClass("float-right")
 
     badges.on("click", function (event) {
       var text = event.currentTarget.innerText;
       console.log("Searching for ", text)
-      table.search(text).draw();
+      table.search("");
+      table.column(1).search(" " + text + " ");
+      table.draw();
       event.stopPropagation();
     });
 
