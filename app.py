@@ -66,9 +66,6 @@ def main_page():
     # Ugly sort
     collection = {k: collection[k] for k in sorted(collection, key=hat_name_key)}
 
-    for fn in collection:
-        print(fn, "\t", hat_name_key(fn))
-
     # TODO ensure thumbnails start with static
 
     last_update = datetime.datetime.fromtimestamp(

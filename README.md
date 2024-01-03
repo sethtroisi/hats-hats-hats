@@ -18,6 +18,7 @@ A local server should now be running at http://localhost:5090
 
 * [ ] Show multiple images
 * [ ] image size doesn't always work with rotation
+* [ ] move print button
 * [x] Sort costume and accessory to end
 * [x] Clear button
 * [x] Cards
